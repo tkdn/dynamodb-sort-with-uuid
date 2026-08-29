@@ -17,7 +17,7 @@ create-table:
 			AttributeName=user_id,KeyType=HASH \
 			AttributeName=created_at,KeyType=RANGE \
 		--billing-mode PAY_PER_REQUEST \
-		--region us-east-1
+		--region ap-northeast-1
 
 run:
 	go run .

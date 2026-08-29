@@ -10,7 +10,7 @@ import (
 
 const (
 	localEndpoint = "http://localhost:8000"
-	localRegion   = "us-east-1"
+	localRegion   = "ap-northeast-1"
 )
 
 // NewClientは、ローカルのDynamoDBエミュレータ（amazon/dynamodb-local）に接続する
