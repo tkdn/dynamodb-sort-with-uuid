@@ -20,12 +20,11 @@ func NewItemLister(client *dynamodb.Client) *ItemLister {
 	return &ItemLister{client: client}
 }
 
-// ListByUser queries items for a given user_id partition key whose
-// created_at falls after cutoff. Lexicographic string comparison of
-// the composite sort key against the bare cutoff timestamp works
-// correctly here: a string that starts with an identical prefix is
-// always "greater than" that prefix alone, so the "#<job_id>" suffix
-// never affects the comparison outcome.
+// ListByUserは、指定したuser_idパーティションキーに属し、created_atが
+// cutoffより後のItemを取得する。複合ソートキーに対して素のcutoff文字列を
+// 辞書順比較しても正しく機能する: 同一プレフィックスを持つ文字列は、
+// その延長より必ず小さいという辞書順の性質により、"#<job_id>"という接尾辞は
+// 比較結果に一切影響しない。
 func (l *ItemLister) ListByUser(ctx context.Context, userID string, cutoff time.Time) ([]Item, error) {
 	out, err := l.client.Query(ctx, &dynamodb.QueryInput{
 		TableName:              new(tableName),

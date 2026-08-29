@@ -8,34 +8,33 @@ import (
 	"uuid"
 )
 
-// sortKeyTimeLayout produces a fixed-width, zero-padded nanosecond
-// fraction so lexicographic string sort matches chronological order.
-// Deliberately NOT time.RFC3339Nano, which uses ".999999999" and
-// trims trailing zeros (variable width, breaks lexicographic sort
-// and breaks range queries against the sort key).
+// sortKeyTimeLayoutは、辞書順ソートが時系列順と一致するよう、固定桁数・
+// ゼロ埋めのナノ秒表記を生成する。time.RFC3339Nanoは".999999999"パターンで
+// 末尾のゼロを削り可変長になるため、意図的に使わない（辞書順ソートと
+// ソートキーへの範囲クエリの両方が壊れる）。
 const sortKeyTimeLayout = "2006-01-02T15:04:05.000000000Z"
 
-// LookbackWindow bounds how far back ListByUser will look for items,
-// applied server-side as a fixed cutoff (not client-configurable).
+// LookbackWindowは、ListByUserがItemをどこまで遡って取得するかを定める。
+// サーバー側の固定カットオフとして適用される（クライアントからは変更不可）。
 const LookbackWindow = 24 * time.Hour
 
-// Item mirrors the DynamoDB "items" table row.
-// SortKey holds the raw "<created_at>#<job_id>" sort-key value and is
-// excluded from JSON output; CreatedAt() reconstructs the timestamp
-// portion for API responses.
+// Itemは、DynamoDBの"items"テーブルの行を表す。
+// SortKeyは"<created_at>#<job_id>"という生のソートキー値を保持し、
+// JSON出力からは除外される。CreatedAt()がAPIレスポンス用に時刻部分を
+// 再構成する。
 type Item struct {
 	UserID  string `dynamodbav:"user_id"`
 	SortKey string `dynamodbav:"created_at"`
 	JobID   string `dynamodbav:"job_id"`
 }
 
-// CreatedAt extracts the timestamp portion of the composite sort key.
+// CreatedAtは、複合ソートキーから時刻部分を取り出す。
 func (i Item) CreatedAt() string {
 	createdAt, _, _ := strings.Cut(i.SortKey, "#")
 	return createdAt
 }
 
-// MarshalJSON renders the API-facing shape: user_id, created_at, job_id.
+// MarshalJSONは、API向けの形（user_id, created_at, job_id）を出力する。
 func (i Item) MarshalJSON() ([]byte, error) {
 	type response struct {
 		UserID    string `json:"user_id"`
@@ -49,9 +48,8 @@ func (i Item) MarshalJSON() ([]byte, error) {
 	})
 }
 
-// NewItem builds an Item for "now", generating a fresh job_id via the
-// stdlib uuid package and formatting created_at with fixed-width
-// nanosecond precision.
+// NewItemは、"現在時刻"のItemを組み立てる。標準uuidパッケージで新規job_idを
+// 生成し、created_atを固定桁数のナノ秒精度でフォーマットする。
 func NewItem(userID string) Item {
 	now := time.Now().UTC()
 	createdAt := formatSortKeyTime(now)

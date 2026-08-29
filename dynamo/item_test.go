@@ -8,8 +8,8 @@ import (
 )
 
 func TestFormatSortKeyTimeFixedWidth(t *testing.T) {
-	// A time with zero nanoseconds must still produce a 9-digit
-	// fraction, not a trimmed/empty one (unlike time.RFC3339Nano).
+	// ナノ秒がゼロの時刻でも、（time.RFC3339Nanoと違い）省略・空にならず
+	// 9桁の表記を生成しなければならない。
 	tm := time.Date(2026, 8, 29, 12, 0, 0, 0, time.UTC)
 
 	got := formatSortKeyTime(tm)

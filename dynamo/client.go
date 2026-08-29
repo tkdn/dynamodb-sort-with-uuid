@@ -13,10 +13,9 @@ const (
 	localRegion   = "us-east-1"
 )
 
-// NewClient builds a DynamoDB client hardcoded to talk to a local
-// DynamoDB emulator (amazon/dynamodb-local). Not for production use:
-// credentials and endpoint are intentionally static, since this
-// project never talks to real AWS.
+// NewClientは、ローカルのDynamoDBエミュレータ（amazon/dynamodb-local）に接続する
+// DynamoDBクライアントを構築する。本番利用は想定していない。認証情報とエンドポイントは
+// 意図的に固定値であり、このプロジェクトは実AWSには接続しない。
 func NewClient(ctx context.Context) (*dynamodb.Client, error) {
 	cfg, err := config.LoadDefaultConfig(ctx,
 		config.WithRegion(localRegion),

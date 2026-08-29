@@ -9,18 +9,17 @@ import (
 	"github.com/tkdn/dynamodb-sort-uuid/dynamo"
 )
 
-// ItemLister is the minimal interface the handler needs, allowing a
-// fake to be substituted in handler-level tests without pulling in
-// the AWS SDK.
+// ItemListerは、ハンドラが必要とする最小限のインターフェース。AWS SDKに
+// 依存せずに、ハンドラ層のテストでフェイクに差し替えられるようにする。
 type ItemLister interface {
 	ListByUser(ctx context.Context, userID string, cutoff time.Time) ([]dynamo.Item, error)
 }
 
-// dynamoCallTimeout bounds how long a single DynamoDB call may block.
-// Without this, an unreachable DynamoDB endpoint (e.g. a stopped local
-// container) can hang far longer than expected: TCP connection attempts
-// on some networks do not fail fast, so the SDK call can block well
-// past what a caller would consider a reasonable request timeout.
+// dynamoCallTimeoutは、DynamoDB呼び出し1回がブロックしてよい時間の上限。
+// これがないと、到達不能なDynamoDBエンドポイント（例: 停止したローカル
+// コンテナ）に対して、想定よりはるかに長くブロックしうる。環境によっては
+// TCP接続の試行がすぐには失敗しないため、SDK呼び出しが妥当なリクエスト
+// タイムアウトを大きく超えてブロックすることがある。
 const dynamoCallTimeout = 5 * time.Second
 
 type ItemsHandler struct {
@@ -31,14 +30,15 @@ func NewItemsHandler(lister ItemLister) *ItemsHandler {
 	return &ItemsHandler{lister: lister}
 }
 
-// List handles GET /users/{user_id}/items. The lookback window is a
-// fixed server-side cutoff; clients cannot request a different range.
+// Listは、GET /users/{user_id}/itemsを処理する。保持窓はサーバー側の
+// 固定カットオフであり、クライアントは異なる範囲を要求できない。
 func (h *ItemsHandler) List(w http.ResponseWriter, r *http.Request) {
 	userID := r.PathValue("user_id")
-	// Empty user_id is unreachable via normal routing: ServeMux's path
-	// cleaning redirects "/users//items" to "/users/items" (a 3-segment
-	// pattern mismatch) before this handler ever runs. Kept as a guard
-	// against future input paths (e.g. a differently-shaped route).
+	// 空のuser_idは通常のルーティング経路では到達しない: ServeMuxの
+	// パスクリーニングにより"/users//items"は"/users/items"
+	// （3セグメントパターンとの不一致）にリダイレクトされ、このハンドラには
+	// 到達する前に処理が終わる。将来の入力経路の変化（例えば異なる形の
+	// ルート）に備えた保険として残している。
 	if userID == "" {
 		writeError(w, http.StatusBadRequest, "user_id is required")
 		return
