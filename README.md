@@ -15,11 +15,6 @@
 
 ```fish
 make up             # DynamoDB Localをdocker composeで起動
-
-set -x AWS_ACCESS_KEY_ID dummy
-set -x AWS_SECRET_ACCESS_KEY dummy
-set -x AWS_DEFAULT_REGION us-east-1
-
 make create-table   # テーブルを手動作成
 make run             # サーバーを起動（:8080）
 ```
