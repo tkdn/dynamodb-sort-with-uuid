@@ -24,9 +24,9 @@ const LookbackWindow = 24 * time.Hour
 // excluded from JSON output; CreatedAt() reconstructs the timestamp
 // portion for API responses.
 type Item struct {
-	UserID  string `dynamodbav:"user_id"    json:"user_id"`
-	SortKey string `dynamodbav:"created_at" json:"-"`
-	JobID   string `dynamodbav:"job_id"     json:"job_id"`
+	UserID  string `dynamodbav:"user_id"`
+	SortKey string `dynamodbav:"created_at"`
+	JobID   string `dynamodbav:"job_id"`
 }
 
 // CreatedAt extracts the timestamp portion of the composite sort key.
